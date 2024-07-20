@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi_container
+    ports:
+      - "8000:8000"
+    networks:
+      - stock_prediction_net
+
+  streamlit:
+    image: python:3.8
+    container_name: streamlit_container
+    volumes:
+      - ./streamlit_app:/streamlit_app
+    working_dir: /streamlit_app
+    command: ["streamlit", "run", "app.py"]
+    ports:
+      - "8501:8501"
+    depends_on:
+      - fastapi
+    networks:
+      - stock_prediction_net
+
+networks:
+  stock_prediction_net:
+    driver: bridge
