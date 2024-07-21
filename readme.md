@@ -5,7 +5,7 @@
 * Clone repository
 * Install packages from `requirements.txt` files
 * Run `docker-compose up --build` in project `venv` terminal
-* `cd` to `[project]/fastapi` and `[project]/streamlit`, and run `pip install -r requirements.txt`
+* Run `pip install -r requirements.txt` in main project directory
 
 ## Usage
 Run `main.py`, and enter company tag.
