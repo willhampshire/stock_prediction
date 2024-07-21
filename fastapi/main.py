@@ -1,3 +1,4 @@
+import sys
 from stock_data import fetch_stock_data, preprocess_data
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -20,8 +21,8 @@ async def predict(request: PredictionRequest):
     predictions = model.predict(scaled_features)
     return {'predictions': predictions.tolist()}
 
-if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+
+uvicorn.run(app, host='0.0.0.0', port=8000)
 
 # Model training
 def create_model(input_shape):
@@ -33,12 +34,20 @@ def create_model(input_shape):
     model.compile(optimizer='adam', loss='mean_squared_error')
     return model
 
-# Example ticker symbol
-ticker = 'NVDA'
+ticker = input("Please enter the ticker code for the company (e.g. NVDA): ")
+try:
+    ticker = str(ticker) # verify parse to string
+except:
+    print("Invalid.")
+    sys.exit()
 
 # Fetch and preprocess data
-data = fetch_stock_data(ticker)
-data = preprocess_data(data)
+try:
+    data = fetch_stock_data(ticker)
+    data = preprocess_data(data)
+except:
+    print("Error - stock data")
+    sys.exit()
 
 # Prepare data for model
 scaler = MinMaxScaler(feature_range=(0, 1))
