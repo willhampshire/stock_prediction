@@ -7,7 +7,7 @@ def plot_predictions(actual, predicted):
     st.line_chart(df)
 
 st.title('Stock Price Prediction')
-st.write('Predictions for NVDA stock')
+st.write('Predictions for stock')
 
 features = st.text_input('Enter features as a list of numbers (e.g., [1.0, 2.0, 3.0]):')
 if st.button('Predict'):
