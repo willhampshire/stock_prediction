@@ -2,8 +2,8 @@ import sys
 from stock_data import fetch_stock_data, preprocess_data
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import LSTM, Dense
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dense
 import fastapi
 from pydantic import BaseModel
 import uvicorn
