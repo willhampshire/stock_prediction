@@ -5,31 +5,19 @@ import sys
 
 from model.stock_data import fetch_stock_data, preprocess_data
 #from model.model import create_model, create_dataset
+from json_manage import json_state # edit the fastapi json state variable
+
 
 load_dotenv()
 cwd = os.getenv("CWD")
 print(cwd)
 
-# Start FastAPI server
-fastapi_process = subprocess.Popen(["uvicorn", "fastapi_.main:app", "--reload"], cwd=cwd)
-
-# Start Streamlit server
+fastapi_process = subprocess.Popen(["uvicorn", "main:app", "--reload"], cwd=cwd)
 streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit/app.py"])
 
-# Wait for both processes
-fastapi_process.wait()
-streamlit_process.wait()
+json_state.set_state("training")
 
-
-
-### Create model
-
-ticker_name = input("Please enter the ticker code for the company (e.g. NVDA): ")
-try:
-    ticker_name = str(ticker_name) # verify parse to string
-except:
-    print("Invalid.")
-    sys.exit()
+ticker_name = "NVDA"
 
 # Fetch and preprocess data
 try:
@@ -39,3 +27,10 @@ try:
 except:
     print("Error - stock data")
     sys.exit()
+
+
+
+
+# pause until the processes terminate
+fastapi_process.wait()
+streamlit_process.wait()
