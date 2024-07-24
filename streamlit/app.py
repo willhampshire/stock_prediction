@@ -1,9 +1,9 @@
 import streamlit as st
 import requests
-import pandas as pd
+from pandas import DataFrame as DF
 
-def plot_predictions(actual, predicted):
-    df = pd.DataFrame({'Actual': actual, 'Predicted': predicted})
+def plot_predictions(actual: DF, predicted: DF):
+    df = DF({'Actual': actual, 'Predicted': predicted})
     st.line_chart(df)
 
 st.title('Stock Price Prediction')
@@ -13,7 +13,7 @@ features = st.text_input('Enter features as a list of numbers (e.g., [1.0, 2.0, 
 if st.button('Predict'):
     try:
         features = eval(features)
-        response = requests.post('http://fastapi:8000/predict', json={'features': features})
+        response = requests.post('http://fastapi:8501/predict', json={'features': features})
         predictions = response.json()['predictions']
         st.write('Predictions:', predictions)
     except Exception as e:

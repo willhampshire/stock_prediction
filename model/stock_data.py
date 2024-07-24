@@ -1,5 +1,4 @@
 import yfinance as yf
-from icecream import ic
 
 
 def fetch_stock_data(ticker, period='2y', interval='1d'):
@@ -29,6 +28,6 @@ def preprocess_data(data):
     data['+7d'] = data['Close'].shift(-7)
     data = data.dropna()
     data.info()
-    ic(data.head())
+    print(data.head())
     return data
 
