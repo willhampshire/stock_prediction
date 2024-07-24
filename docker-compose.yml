@@ -7,19 +7,19 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi_container
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Host port 8000 mapped to container port 8000
     networks:
       - stock_prediction_net
 
   streamlit:
-    image: python:3.8
+    image: python:3.11
     container_name: streamlit_container
     volumes:
-      - ./streamlit_app:/streamlit_app
-    working_dir: /streamlit_app
+      - ./streamlit:/streamlit
+    working_dir: /streamlit
     command: ["streamlit", "run", "app.py"]
     ports:
-      - "8501:8501"
+      - "8501:8501"  # Host port 8501 mapped to container port 8501
     depends_on:
       - fastapi
     networks:

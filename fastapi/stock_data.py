@@ -1,7 +1,8 @@
 import yfinance as yf
 from icecream import ic
 
-def fetch_stock_data(ticker, period='5y', interval='1d'):
+
+def fetch_stock_data(ticker, period='2y', interval='1d'):
     """
     Fetches historical stock data from Yahoo Finance.
 
@@ -21,11 +22,13 @@ def preprocess_data(data):
     :param data: DataFrame with stock data.
     :return: Preprocessed DataFrame.
     """
-    data = data.dropna()
+    del data['Dividends']
+    del data['Stock Splits']
     data['Return'] = data['Close'].pct_change()
-    data['MA50'] = data['Close'].rolling(50).mean()
-    data['MA200'] = data['Close'].rolling(200).mean()
+    data['+1d'] = data['Close'].shift(-1)
+    data['+7d'] = data['Close'].shift(-7)
     data = data.dropna()
-    #ic(data.head())
+    data.info()
+    ic(data.head())
     return data
 

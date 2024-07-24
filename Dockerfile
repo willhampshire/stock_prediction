@@ -1,25 +1,19 @@
-FROM ubuntu:latest
+# Use the FastAPI base image with a suitable Python version
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
+
 LABEL authors="williamhampshire"
 
-ENTRYPOINT ["top", "-b"]
-# Base image for FastAPI
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
-
-# Set the working directory
-WORKDIR /app
-
 # Copy FastAPI requirements
-COPY ./app/requirements.txt /app/requirements.txt
+COPY requirements.txt .
 
 # Install FastAPI dependencies
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
 
-# Copy FastAPI application
-COPY ./app /app
+# Copy code to working dir
+COPY . .
 
-# Copy the pre-trained model and scaler
-COPY ./model.pkl /app/model.pkl
-COPY ./scaler.pkl /app/scaler.pkl
+# Expose the port the FastAPI app runs on
+EXPOSE 8000
 
 # Command to run FastAPI
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
