@@ -20,6 +20,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
+
+ticker_name = "NVDA"
+time_period = 31 # days used to create sliding window for LSTM
+
+
+cwd = fr"{os.getcwd()}"
+data_csv_savepath = cwd + r'/data.csv'
+data_header = ['Result 1d', 'Result 7d', 'Real 1d', 'Real 7d']
+
+
 load_dotenv()
 model_save_name = os.getenv("MODEL_SAVE_NAME")
 
@@ -28,14 +38,13 @@ streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py", "-
 
 json_state.set_state("training")
 
-ticker_name = "NVDA"
-time_period = 31 # days used to create sliding window
+
 
 # Fetch and preprocess data
 try:
     print("Fetching stock data")
-    data = fetch_stock_data(ticker_name)
-    data = preprocess_data(data)
+    stock_data = fetch_stock_data(ticker_name)
+    stock_data = preprocess_data(stock_data)
 except:
     print("Error - stock data")
     sys.exit()
@@ -43,7 +52,15 @@ except:
 #data.plot.line(y='Close', use_index=True)
 #plt.show()
 
-def build_train_model():
+def build_train_model(data: np.ndarray, savepath: str, header: list) -> None:
+    """
+    Trains the ML model.
+
+    :param data: data used to train the model
+    :param savepath: file name with path to save data.csv, used for calculating metrics
+    :param header: header for data.csv
+    :return: None
+    """
 
     scaler = MinMaxScaler(feature_range=(0,1))
     scaled_data = DF(scaler.fit_transform(data), columns=data.columns)
@@ -110,52 +127,58 @@ def build_train_model():
 
     results_df = DF([y_test_result_1d_flat, y_test_result_7d_flat, y_test_actual_1d_flat, y_test_actual_7d_flat]).T
 
-    results_df.to_csv(data_csv_savepath, header=data_header, index=False)
-    print(f"Saved csv to {data_csv_savepath}")
+    results_df.to_csv(savepath, header=header, index=False)
+    print(f"Saved csv to {savepath}")
 
-cwd = fr"{os.getcwd()}"
-data_csv_savepath = cwd + r'/data.csv'
-data_header = ['Result 1d', 'Result 7d', 'Real 1d', 'Real 7d']
+
 
 if os.path.exists(model_save_name):
     model = load_model(model_save_name)
     print("Loaded existing model")
 else:
-    build_train_model()
+    build_train_model(stock_data, data_csv_savepath, data_header)
 
 results_df = pd.read_csv(data_csv_savepath)
 
-y_test_actual_1d = results_df[data_header[2]]
-y_test_result_1d = results_df[data_header[0]]
-y_test_actual_7d = results_df[data_header[3]]
-y_test_result_7d = results_df[data_header[1]]
 
-print(results_df.head(10))
+def analyse_distribute_results(results_df: DF):
+    """
+    Measures how good the prediction is using MSE, MAE, R2. Saves the results as JSON instead of .csv, so
+    they can be displayed by the FastAPI service.
 
-mse_1d = mean_squared_error(y_test_actual_1d, y_test_result_1d)
-mae_1d = mean_absolute_error(y_test_actual_1d, y_test_result_1d)
-r2_1d = r2_score(y_test_actual_1d, y_test_result_1d)
+    :param results_df: results from .csv format
+    :return: None
+    """
+    y_test_actual_1d = results_df[data_header[2]]
+    y_test_result_1d = results_df[data_header[0]]
+    y_test_actual_7d = results_df[data_header[3]]
+    y_test_result_7d = results_df[data_header[1]]
 
-mse_7d = mean_squared_error(y_test_actual_7d, y_test_result_7d)
-mae_7d = mean_absolute_error(y_test_actual_7d, y_test_result_7d)
-r2_7d = r2_score(y_test_actual_7d, y_test_result_7d)
+    print(results_df.head(10))
 
-print(f'+1d - MSE: {mse_1d:.3e}, MAE: {mae_1d:.3e}, R2: {r2_1d:.3f}')
-print(f'+7d - MSE: {mse_7d:.3e}, MAE: {mae_7d:.3e}, R2: {r2_7d:.3f}')
+    mse_1d = mean_squared_error(y_test_actual_1d, y_test_result_1d)
+    mae_1d = mean_absolute_error(y_test_actual_1d, y_test_result_1d)
+    r2_1d = r2_score(y_test_actual_1d, y_test_result_1d)
+
+    mse_7d = mean_squared_error(y_test_actual_7d, y_test_result_7d)
+    mae_7d = mean_absolute_error(y_test_actual_7d, y_test_result_7d)
+    r2_7d = r2_score(y_test_actual_7d, y_test_result_7d)
+
+    print(f'+1d - MSE: {mse_1d:.3e}, MAE: {mae_1d:.3e}, R2: {r2_1d:.3f}')
+    print(f'+7d - MSE: {mse_7d:.3e}, MAE: {mae_7d:.3e}, R2: {r2_7d:.3f}')
+
+    actual_stock_values = [y_test_actual_1d, y_test_actual_7d]
+    predicted_stock_values = [y_test_result_1d, y_test_result_7d]
+
+    data_file.write(actual_stock_values, predicted_stock_values)
+
+
+analyse_distribute_results(results_df)
 
 
 
 
-actual_stock_values = [y_test_actual_1d, y_test_actual_7d]
-predicted_stock_values = [y_test_result_1d, y_test_result_7d]
-
-data_file.write(actual_stock_values, predicted_stock_values)
-
-
-
-
-
-json_state.set_state("trained")
+json_state.set_state("trained") # set state to trained
 
 
 # pause until the processes terminate

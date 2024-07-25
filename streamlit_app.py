@@ -14,8 +14,8 @@ def plot_predictions():
     predicted = np.array(data[1])  # Assuming data[1] is an array of predicted values
 
     # Flatten the arrays if they are multi-dimensional
-    actual_flat = actual.flatten()
-    predicted_flat = predicted.flatten()
+    actual_flat = actual
+    predicted_flat = predicted
 
     # Create DataFrames for plotting
     df = pd.DataFrame({
