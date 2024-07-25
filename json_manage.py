@@ -66,9 +66,6 @@ class Data:
         real_list = np.array(real).astype(float).tolist()
         prediction_list = np.array(prediction).astype(float).tolist()
 
-        print("real_list and prediction_list type():")
-        print(type(real_list), type(prediction_list))
-
         data = {
             "real": real_list,
             "prediction": prediction_list

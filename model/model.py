@@ -19,8 +19,8 @@ def create_model(input_shape :Tuple[int, int, int]) -> Model:
     x = LSTM(50, return_sequences=True)(inputs)
     x = LSTM(50, return_sequences=False)(x)
     x = Dense(25, activation='relu')(x)
-    output1 = Dense(1, name='output1')(x)  # For '+1d' target
-    output2 = Dense(1, name='output2')(x)  # For '+7d' target
+    output1 = Dense(1, activation='relu', name='output1')(x)  # For '+1d' target
+    output2 = Dense(1, activation='relu', name='output2')(x)  # For '+7d' target
     model = Model(inputs=inputs, outputs=[output1, output2])
 
     model.compile(optimizer='adam',
