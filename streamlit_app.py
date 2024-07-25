@@ -10,10 +10,9 @@ def plot_predictions():
     data: Tuple = data_file.read(mode=2)
 
     # Extract real and predicted values
-    actual = np.array(data[0])  # Assuming data[0] is an array of real values
-    predicted = np.array(data[1])  # Assuming data[1] is an array of predicted values
+    actual = np.array(data[0][0])  # Assuming data[0] is an array of real values
+    predicted = np.array(data[1][0])  # Assuming data[1] is an array of predicted values
 
-    # Flatten the arrays if they are multi-dimensional
     actual_flat = actual
     predicted_flat = predicted
 

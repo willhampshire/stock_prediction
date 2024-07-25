@@ -2,6 +2,7 @@ import subprocess
 from dotenv import load_dotenv
 import os
 import sys
+from typing import Tuple, List
 
 from model.stock_data import fetch_stock_data, preprocess_data # model package contains useful model training functions
 from model.model import create_model, create_sequences
@@ -25,16 +26,11 @@ ticker_name = "NVDA"
 time_period = 31 # days used to create sliding window for LSTM
 
 
-cwd = fr"{os.getcwd()}"
-data_csv_savepath = cwd + r'/data.csv'
-data_header = ['Result 1d', 'Result 7d', 'Real 1d', 'Real 7d']
-
-
 load_dotenv()
 model_save_name = os.getenv("MODEL_SAVE_NAME")
 
-fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app", "--host", "0.0.0.0", "--port", "8000"])
-streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py", "--host", "0.0.0.0", "--port", "8501"])
+fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app", "--port", "8000"])
+streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py", "--server.port", "8501"])
 
 json_state.set_state("training")
 
@@ -52,7 +48,7 @@ except:
 #data.plot.line(y='Close', use_index=True)
 #plt.show()
 
-def build_train_model(data: np.ndarray, savepath: str, header: list) -> None:
+def build_train_model(data: np.ndarray) -> None:
     """
     Trains the ML model.
 
@@ -125,10 +121,9 @@ def build_train_model(data: np.ndarray, savepath: str, header: list) -> None:
     y_test_actual_1d_flat = y_test_actual_1d.flatten()
     y_test_actual_7d_flat = y_test_actual_7d.flatten()
 
-    results_df = DF([y_test_result_1d_flat, y_test_result_7d_flat, y_test_actual_1d_flat, y_test_actual_7d_flat]).T
+    data_file.write([y_test_actual_1d_flat, y_test_actual_7d_flat], [y_test_result_1d_flat, y_test_result_7d_flat])
 
-    results_df.to_csv(savepath, header=header, index=False)
-    print(f"Saved csv to {savepath}")
+
 
 
 
@@ -136,25 +131,24 @@ if os.path.exists(model_save_name):
     model = load_model(model_save_name)
     print("Loaded existing model")
 else:
-    build_train_model(stock_data, data_csv_savepath, data_header)
-
-results_df = pd.read_csv(data_csv_savepath)
+    build_train_model(stock_data)
 
 
-def analyse_distribute_results(results_df: DF):
+
+def analyse_distribute_results(results: Tuple[List[List[float], List[float]], List[List[float], List[float]]]):
     """
     Measures how good the prediction is using MSE, MAE, R2. Saves the results as JSON instead of .csv, so
     they can be displayed by the FastAPI service.
 
-    :param results_df: results from .csv format
+    :param results: results from .json
     :return: None
     """
-    y_test_actual_1d = results_df[data_header[2]]
-    y_test_result_1d = results_df[data_header[0]]
-    y_test_actual_7d = results_df[data_header[3]]
-    y_test_result_7d = results_df[data_header[1]]
+    y_test_actual_1d = results[0][0]
+    y_test_result_1d = results[1][0]
+    y_test_actual_7d = results[0][1]
+    y_test_result_7d = results[1][1]
 
-    print(results_df.head(10))
+    print(DF(results).head(10))
 
     mse_1d = mean_squared_error(y_test_actual_1d, y_test_result_1d)
     mae_1d = mean_absolute_error(y_test_actual_1d, y_test_result_1d)
@@ -173,9 +167,9 @@ def analyse_distribute_results(results_df: DF):
     data_file.write(actual_stock_values, predicted_stock_values)
 
 
-analyse_distribute_results(results_df)
-
-
+results = data_file.read(mode=2)
+print(np.array(results).shape)
+analyse_distribute_results(results)
 
 
 json_state.set_state("trained") # set state to trained

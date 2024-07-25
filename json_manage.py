@@ -1,6 +1,7 @@
 import json
 from typing import List, Tuple, Any
 import numpy as np
+import time
 
 STATE_FILE = 'json/state.json'
 DATA_FILE = 'json/data.json'
@@ -46,9 +47,9 @@ class StateMachine:
 
 class Data:
     def __init__(self):
-        self.real = []
-        self.prediction = []
         self.write([],[])
+        time.sleep(0.1)
+
 
     def write(self, real: List[List[float]], prediction: List[List[float]]):
         """
@@ -81,12 +82,13 @@ class Data:
             with open(DATA_FILE, 'w') as file:
                 json.dump(data, file)
 
-    def read(self, mode=1) -> Tuple[List[List[float]], List[List[float]]]:
+    def read(self, mode=1) -> Tuple[List[List[float], List[float]], List[List[float], List[float]]]:
         """
         Read the real and prediction 2D arrays from a JSON file.
 
         Returns:
-            Tuple[List[List[float]], List[List[float]]]: Tuple containing the real and prediction 2D arrays.
+            Tuple[List[List[float], List[float]], List[List[float], List[float]]]:
+            Tuple containing the real and prediction arrays.
         """
         try:
             with open(DATA_FILE, 'r') as file:
