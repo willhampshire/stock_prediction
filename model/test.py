@@ -1,13 +1,11 @@
 from stock_data import fetch_stock_data, preprocess_data
 from model import create_model, create_sequences
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.callbacks import EarlyStopping, Callback
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import train_test_split
 from pandas import DataFrame as DF
 import numpy as np
-from icecream import ic
 import pandas as pd
 
 pd.set_option('display.max_columns', None)
@@ -29,18 +27,15 @@ train = ["+1d","+7d"]
 for col in train:
     predictors.remove(col)
 
-ic(predictors)
 
 predictors_scaled_df = scaled_data[predictors]
 train_scaled_df = scaled_data[train]
 
-ic(predictors_scaled_df.head(), train_scaled_df.head())
+print(predictors_scaled_df.head(), train_scaled_df.head())
 
 
 x_train, x_test, y_train, y_test = train_test_split(np.array(predictors_scaled_df), np.array(train_scaled_df),
                                                     test_size=0.2, random_state=1)
-ic(type(x_train) == np.ndarray) # check numpy array
-ic(x_train.shape, y_train.shape)
 
 time_period=31 # days
 
@@ -49,10 +44,9 @@ y_train_sequences = create_sequences(y_train, time_period)
 x_test_sequences = create_sequences(x_test, time_period)
 y_test_sequences = create_sequences(y_test, time_period)
 
-ic(x_train_sequences.shape, y_train_sequences.shape)
+print(x_train_sequences.shape, y_train_sequences.shape)
 
 input_shape = x_train_sequences.shape # samples, timesteps, features
-ic(input_shape)
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 

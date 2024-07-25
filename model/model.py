@@ -4,7 +4,16 @@ from tensorflow.keras.layers import LSTM, Dense, Input
 from typing import Tuple
 
 
-def create_model(input_shape :Tuple[int, int, int]):
+def create_model(input_shape :Tuple[int, int, int]) -> Model:
+    """
+        Create the model.
+
+        Parameters:
+        - input_shape: tuple of shape Tuple[int, int, int], used to create input and LSTM layer
+
+        Returns:
+        - model: compiled model with 2 output nodes
+        """
     input_shape = tuple(input_shape[1:])
     inputs = Input(shape=input_shape)
     x = LSTM(50, return_sequences=True)(inputs)
@@ -21,9 +30,7 @@ def create_model(input_shape :Tuple[int, int, int]):
     return model
 
 
-import numpy as np
-
-def create_sequences(data, sequence_length=10) -> np.ndarray:
+def create_sequences(data: np.ndarray, sequence_length: int = 10) -> np.ndarray:
     """
     Create sequences from the input data.
 
@@ -44,7 +51,4 @@ def create_sequences(data, sequence_length=10) -> np.ndarray:
     return sequences
 
 
-
-def create_dataset(dataset, time_step=1):
-    pass
 
