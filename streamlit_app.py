@@ -10,20 +10,27 @@ def plot_predictions():
     data: Tuple = data_file.read(mode=2)
 
     # Extract real and predicted values
-    actual = np.array(data[0][0])  # Assuming data[0] is an array of real values
-    predicted = np.array(data[1][0])  # Assuming data[1] is an array of predicted values
+    actual = np.array(data[0])  # Assuming data[0] is an array of real values
+    predicted = np.array(data[1])  # Assuming data[1] is an array of predicted values
 
-    actual_flat = actual
-    predicted_flat = predicted
+    actual_1d = actual[0]
+    predicted_1d = predicted[0]
+    actual_7d = actual[1]
+    predicted_7d = predicted[1]
 
     # Create DataFrames for plotting
-    df = pd.DataFrame({
-        'Actual': actual_flat,
-        'Predicted': predicted_flat
+    df_1d = pd.DataFrame({
+        'Actual': actual_1d,
+        'Predicted': predicted_1d
+    })
+    df_7d = pd.DataFrame({
+        'Actual': actual_7d,
+        'Predicted': predicted_7d
     })
 
     # Use Streamlit to plot the data
-    st.line_chart(df)
+    st.line_chart(df_1d)
+    st.line_chart(df_7d)
 
 
 # Example Streamlit app

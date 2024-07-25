@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 import sys
 from typing import Tuple, List
+import time
 
 from model.stock_data import fetch_stock_data, preprocess_data # model package contains useful model training functions
 from model.model import create_model, create_sequences
@@ -29,8 +30,8 @@ time_period = 31 # days used to create sliding window for LSTM
 load_dotenv()
 model_save_name = os.getenv("MODEL_SAVE_NAME")
 
-fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app", "--port", "8000"])
-streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py", "--server.port", "8501"])
+fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app"])
+streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py"])
 
 json_state.set_state("training")
 
@@ -122,6 +123,10 @@ def build_train_model(data: np.ndarray) -> None:
     y_test_actual_7d_flat = y_test_actual_7d.flatten()
 
     data_file.write([y_test_actual_1d_flat, y_test_actual_7d_flat], [y_test_result_1d_flat, y_test_result_7d_flat])
+    print("Written to data.json:")
+    print(DF([y_test_actual_1d_flat, y_test_actual_7d_flat, y_test_result_1d_flat, y_test_result_7d_flat]).head(10))
+
+    time.sleep(1)
 
 
 
@@ -135,7 +140,7 @@ else:
 
 
 
-def analyse_distribute_results(results: Tuple[List[List[float], List[float]], List[List[float], List[float]]]):
+def analyse_distribute_results(results: Tuple[List[List], List[List]]):
     """
     Measures how good the prediction is using MSE, MAE, R2. Saves the results as JSON instead of .csv, so
     they can be displayed by the FastAPI service.
@@ -143,12 +148,19 @@ def analyse_distribute_results(results: Tuple[List[List[float], List[float]], Li
     :param results: results from .json
     :return: None
     """
-    y_test_actual_1d = results[0][0]
-    y_test_result_1d = results[1][0]
-    y_test_actual_7d = results[0][1]
-    y_test_result_7d = results[1][1]
 
-    print(DF(results).head(10))
+    try:
+        y_test_actual_1d = results[0][0]
+        y_test_result_1d = results[1][0]
+        y_test_actual_7d = results[0][1]
+        y_test_result_7d = results[1][1]
+
+        print(DF(results).head(10))
+    except IndexError:
+        print("data.json is probably empty")
+        print(f"results.shape = {np.array(results).shape}")
+        raise IndexError
+
 
     mse_1d = mean_squared_error(y_test_actual_1d, y_test_result_1d)
     mae_1d = mean_absolute_error(y_test_actual_1d, y_test_result_1d)
@@ -168,7 +180,7 @@ def analyse_distribute_results(results: Tuple[List[List[float], List[float]], Li
 
 
 results = data_file.read(mode=2)
-print(np.array(results).shape)
+#print(np.array(results).shape)
 analyse_distribute_results(results)
 
 

@@ -47,9 +47,8 @@ class StateMachine:
 
 class Data:
     def __init__(self):
-        self.write([],[])
-        time.sleep(0.1)
-
+        self._cache = self.read(mode=1)
+        pass
 
     def write(self, real: List[List[float]], prediction: List[List[float]]):
         """
@@ -82,7 +81,7 @@ class Data:
             with open(DATA_FILE, 'w') as file:
                 json.dump(data, file)
 
-    def read(self, mode=1) -> Tuple[List[List[float], List[float]], List[List[float], List[float]]]:
+    def read(self, mode=1) -> Tuple[List[List], List[List]]:
         """
         Read the real and prediction 2D arrays from a JSON file.
 
