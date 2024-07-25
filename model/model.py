@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from pandas import DataFrame as DF
 from typing import Tuple, List
@@ -201,3 +203,9 @@ def analyse_distribute_results(results: Tuple[List[List], List[List]]):
     predicted_stock_values = [y_test_result_1d, y_test_result_7d]
 
     data_file.write(actual_stock_values, predicted_stock_values)
+
+    cwd = rf"{os.getcwd()}"
+    fpath = cwd + r"/metrics.csv"
+    np.savetxt(
+        fpath, [[mse_1d, mae_1d, r2_1d], [mse_7d, mae_7d, r2_7d]], header="mse, mae, r2"
+    )

@@ -1,7 +1,8 @@
 import yfinance as yf
+from pandas import DataFrame as DF
 
 
-def fetch_stock_data(ticker, period='2y', interval='1d'):
+def fetch_stock_data(ticker, period="2y", interval="1d"):
     """
     Fetches historical stock data from Yahoo Finance.
 
@@ -14,20 +15,40 @@ def fetch_stock_data(ticker, period='2y', interval='1d'):
     hist = stock.history(period=period, interval=interval)
     return hist
 
-def preprocess_data(data):
+
+def preprocess_data(data) -> DF:
     """
     Preprocesses stock data by adding technical indicators.
 
     :param data: DataFrame with stock data.
     :return: Preprocessed DataFrame.
     """
-    del data['Dividends']
-    del data['Stock Splits']
-    data['Return'] = data['Close'].pct_change()
-    data['+1d'] = data['Close'].shift(-1)
-    data['+7d'] = data['Close'].shift(-7)
+    n = 7  # RSI window
+    data["RSI"] = (
+        data["Close"]
+        .diff(1)
+        .mask(data["Close"].diff(1) < 0, 0)
+        .ewm(alpha=1 / n, adjust=False)
+        .mean()
+        .div(
+            data["Close"]
+            .diff(1)
+            .mask(data["Close"].diff(1) > 0, -0.0)
+            .abs()
+            .ewm(alpha=1 / n, adjust=False)
+            .mean()
+        )
+        .add(1)
+        .rdiv(100)
+        .rsub(100)
+    )
+
+    data["Volatility"] = data["High"] - data["Low"]
+    data["Return"] = data["Close"].pct_change()
+    data["+1d"] = data["Close"].shift(-1)
+    data["+7d"] = data["Close"].shift(-7)
+
+    data = data.drop(["Dividends", "Stock Splits", "High", "Low", "Open"], axis=1)
     data = data.dropna()
     data.info()
-    print(data.head())
     return data
-
