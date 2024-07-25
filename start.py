@@ -20,8 +20,8 @@ load_dotenv()
 cwd = os.getenv("CWD")
 print(cwd)
 
-fastapi_process = subprocess.Popen(["uvicorn", "main:app", "--reload"], cwd=cwd)
-streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit/app.py"])
+fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app", "--host", "0.0.0.0", "--port", "8000"], cwd=cwd)
+streamlit_process = subprocess.Popen(["streamlit", "run", "streamlit_app.py", "--host", "0.0.0.0", "--port", "8501"])
 
 json_state.set_state("training")
 
@@ -122,6 +122,9 @@ actual_stock_values = [y_test_actual_1d_flat, y_test_actual_7d_flat]
 predicted_stock_values = [y_test_result_1d_flat, y_test_result_7d_flat]
 
 data_file.write(actual_stock_values, predicted_stock_values)
+
+
+
 
 
 json_state.set_state("trained")

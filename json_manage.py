@@ -48,6 +48,7 @@ class Data:
     def __init__(self):
         self.real = []
         self.prediction = []
+        self.write([],[])
 
     def write(self, real: List[List[float]], prediction: List[List[float]]):
         """
