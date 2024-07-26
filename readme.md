@@ -10,10 +10,17 @@
 
 
 ## Usage
-Run `start.py`, and enter company tag.
+Configure `config.ini`, and run `start.py`.
 See status, data and results using FastAPI and streamlit.
 The model will start training if it has not already. Hosting will start promptly on localhost ports 8000 and 8501. 
 The model has 2 output nodes - prediction of +1d, and +7d.
+
+### Config
+`MODEL_SAVE_NAME`: saves the model to working directory. Use .keras or .h5.
+
+`TICKER`: company ticker to obtain the stocks data.
+
+`TIME_PERIOD_LSTM`: window size in days (sample rate of yfinance) to create windows to train the LSTM layer specifically.
 
 ### FastAPI Endpoints
 Accessible on port 8000. Rested behaviour.
