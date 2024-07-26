@@ -12,9 +12,12 @@ RUN pip install --no-cache-dir -r /requirements.txt
 # Copy code to working dir
 COPY . .
 
-# Expose the port the FastAPI app runs on
-EXPOSE 8000
+# Expose the ports
+EXPOSE 8000 8501
 
-# Run FastAPI and streamlit
-CMD ["uvicorn", "fastapi_main:app", "--host", "0.0.0.0", "--port", "8000"]
-CMD ["streamlit", "run", "streamlit_app.py", "--host", "0.0.0.0", "--port", "8501"]
+# Make executable
+RUN chmod +x /start.py
+
+# Run start.py
+CMD ["python", "/start.py"]
+
