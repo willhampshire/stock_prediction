@@ -3,11 +3,13 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.11
 
 LABEL authors="williamhampshire"
 
+WORKDIR /
+
 # Copy FastAPI requirements
 COPY requirements.txt .
 
 # Install FastAPI dependencies
-RUN pip install --no-cache-dir -r /requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy code to working dir
 COPY . .
