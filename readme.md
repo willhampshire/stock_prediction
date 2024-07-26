@@ -46,12 +46,13 @@ To get docker working, I had to open `settings.json` in /Library/Group\ Containe
 
 ## Frameworks
 
-- `docker` (v20.0.6 for macos 11.6, support discontinued)
+- `docker` (v24.0.6 for macos 11.6)
 - `fastapi`
+- `streamlit`
 
 ## Code practices
 Used the following for good code practice and safety:
 - `pydantic`
-- `mypy`
-- `black`
+- `mypy` - used to check code
+- `black` - formats code on save
 

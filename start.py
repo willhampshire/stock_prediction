@@ -1,7 +1,6 @@
 import subprocess
-from dotenv import load_dotenv
 import os
-import sys
+import configparser
 
 from tensorflow.keras.models import load_model
 
@@ -14,10 +13,12 @@ from model.model import build_train_model, analyse_distribute_results
 from json_manage import json_state, data_file  # edit the fastapi state, data file
 
 
-load_dotenv()
-model_save_name = os.getenv("MODEL_SAVE_NAME")
-ticker_name = os.getenv("TICKER")
-time_period = int(os.getenv("TIME_PERIOD_LSTM"))
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+model_save_name = config["MODEL"]["MODEL_SAVE_NAME"]
+ticker_name = config["STOCKDATA"]["TICKER"]
+time_period = int(config["STOCKDATA"]["TIME_PERIOD_LSTM"])
 
 
 fastapi_process = subprocess.Popen(["uvicorn", "fastapi_main:app"])
@@ -27,13 +28,9 @@ json_state.set_state("training")
 
 
 # Fetch and preprocess data
-try:
-    print("Fetching stock data")
-    stock_data = fetch_stock_data(ticker_name)
-    stock_data = preprocess_data(stock_data)
-except:
-    print("Error - stock data")
-    sys.exit()
+print("Fetching stock data")
+stock_data = fetch_stock_data(ticker_name)
+stock_data = preprocess_data(stock_data)
 
 
 if os.path.exists(model_save_name):

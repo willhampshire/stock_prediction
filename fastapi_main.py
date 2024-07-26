@@ -1,18 +1,19 @@
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 import uvicorn
-from dotenv import load_dotenv
-import os
 from typing import Optional, Any
+import configparser
 
-from json_manage import json_state, data_file
+from json_manage import json_state, data_file, StatusJSON, MessageResponse, DataType
 from model.model import build_train_model, analyse_distribute_results
 from model.stock_data import fetch_stock_data, preprocess_data
 
 
-load_dotenv()
-model_save_name = os.getenv("MODEL_SAVE_NAME")
-ticker_name = os.getenv("TICKER")
-time_period = int(os.getenv("TIME_PERIOD_LSTM"))
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+model_save_name = config["MODEL"]["MODEL_SAVE_NAME"]
+ticker_name = config["STOCKDATA"]["TICKER"]
+time_period = int(config["STOCKDATA"]["TIME_PERIOD_LSTM"])
 
 
 def retrain_model():
@@ -49,46 +50,37 @@ app = FastAPI()
 @app.get("/")
 async def get(query: Optional[str] = None):
     json = json_state.get_state()
-    print(f"get, json_state {json}")
+    # print(f"get, json_state {json}")
     if query:
         try:
             result = get_nested_data(json, query)
             return result
         except HTTPException as e:
-            return {"error": e.detail}
+            return MessageResponse(message=e.detail)
     return json
 
 
 @app.get("/data/")
 async def get(query: Optional[str] = None):
-    json = data_file.read()
-    print(f"get, data {json}")
+    json: DataType = data_file.read()
+    # print(f"get, data {json}")
     if query:
         try:
             result = get_nested_data(json, query)
             return result
         except HTTPException as e:
-            return {"error": e.detail}
+            return MessageResponse(message=e.detail)
     return json
 
 
-@app.post("/")
-async def retrain(request: Request):
-    try:
-        # Parse the incoming JSON data
-        data = await request.json()
-
-        # Check if the key 'status' with value 'retrain' exists
-        if data.get("status") == "retrain":
-            print("Retrain model")
-            retrain_model()
-            return {"message": "Model retrained."}
-        else:
-            raise HTTPException(status_code=400, detail="Invalid status value")
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.post("/", response_model=MessageResponse)
+async def retrain(retrain_request: StatusJSON):
+    if retrain_request.status == "retrain":
+        print("Retrain model")
+        retrain_model()
+        return MessageResponse(message="Model retrained.")
+    else:
+        raise HTTPException(status_code=400, detail="Invalid status value")
 
 
 if __name__ == "__main__":

@@ -6,10 +6,10 @@ LABEL authors="williamhampshire"
 WORKDIR /
 
 # Copy FastAPI requirements
-COPY requirements.txt .
+COPY requirements_converted.txt .
 
 # Install FastAPI dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements_converted.txt
 
 # Copy code to working dir
 COPY . .

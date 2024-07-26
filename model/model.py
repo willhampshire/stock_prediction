@@ -63,7 +63,7 @@ def create_sequences(data: np.ndarray, sequence_length: int = 10) -> np.ndarray:
     return sequences
 
 
-def build_train_model(data: np.ndarray, time_period: int, model_name: str) -> Model:
+def build_train_model(data: DF, time_period: int, model_name: str) -> Model:
     """
     Trains the ML model, saves as .keras.
 
