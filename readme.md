@@ -2,7 +2,7 @@
 
 ## Setup
 * Clone repository
-* Run `pip install -r requirements.txt` in main project directory (or use conda environment - kept getting segmentation fault)
+* Run `pip install -r requirements_converted.txt` in main project directory (or use conda environment - kept getting segmentation fault)
 
 ### Docker setup (optional)
 * Install docker from [docker.com](https://www.docker.com/)
