@@ -5,7 +5,7 @@
 * Run `pip install -r requirements.txt` in main project directory (or use conda environment - kept getting segmentation fault)
 
 ### Docker setup (optional)
-* Install docker from [docker.com](docker.com)
+* Install docker from [docker.com](https://www.docker.com/)
 * Run `docker build -t stock_predict_containter .` in project directory to create docker container
 
 
