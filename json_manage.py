@@ -1,8 +1,9 @@
 import json
-from typing import List, Tuple, Any
+from typing import List, Tuple
 import numpy as np
 from pydantic import BaseModel
-import time
+from pathlib import Path
+
 
 STATE_FILE = "json/state.json"
 DATA_FILE = "json/data.json"
@@ -20,6 +21,9 @@ class DataType(BaseModel):
     real: List[List[float]] | np.ndarray
     prediction: List[List[float]] | np.ndarray
 
+    class Config:
+        arbitrary_types_allowed = True
+
 
 class ArrayException(Exception):
     """Exception raised for errors in the input array sizes."""
@@ -30,18 +34,21 @@ class ArrayException(Exception):
 
 
 class StateMachine:
-    def __init__(self, init_state: str = str(None)):
+    def __init__(self):
         self.json: StatusJSON
 
-        self._load_state()
+        self.state_file_path = Path(STATE_FILE)
 
-        if init_state != None:
-            self.set_state(str(init_state))
+        if self.state_file_path.exists():
             self._load_state()
+            print("state.json already exists")
+        else:
+            self.json = StatusJSON(status="created json")
+            self._save_state()
 
     def _load_state(self) -> bool:
         try:
-            with open(STATE_FILE, "r") as file:
+            with open(self.state_file_path, "r") as file:
                 self.json = json.load(file)
                 return True
         except (FileNotFoundError, json.JSONDecodeError):
@@ -49,8 +56,9 @@ class StateMachine:
             return False
 
     def _save_state(self) -> bool:
-        with open(STATE_FILE, "w") as file:
-            json.dump(self.json, file)
+        with open(self.state_file_path, "w") as file:
+            print(f"Dumping JSON val - {self.json.dict()}")
+            json.dump(self.json.dict(), file)
             return True
 
     def get_state(self) -> StatusJSON:
@@ -65,8 +73,14 @@ class StateMachine:
 
 class Data:
     def __init__(self):
+        self.data_file_path = Path(DATA_FILE)
+
+        if self.data_file_path.exists():
+            print("data.json exists already")
+        else:
+            self.write([[]], [[]])
+
         self._cache = self.read(mode=1)
-        pass
 
     def write(
         self,
@@ -90,13 +104,13 @@ class Data:
 
         data: DataType = DataType(real=real_list, prediction=prediction_list)
         try:
-            with open(DATA_FILE, "w") as file:
-                json.dump(data, file)
+            with open(self.data_file_path, "w") as file:
+                json.dump(data.dict(), file)
                 return True
         except:
             data = DataType(real=np.empty((2)), prediction=np.empty((2)))
-            with open(DATA_FILE, "w") as file:
-                json.dump(data, file)
+            with open(self.data_file_path, "w") as file:
+                json.dump(data.dict(), file)
                 return False
 
     def read(
@@ -112,7 +126,7 @@ class Data:
             Tuple containing the real and prediction arrays.
         """
         try:
-            with open(DATA_FILE, "r") as file:
+            with open(self.data_file_path, "r") as file:
                 data = json.load(file)
                 if mode == 1:
                     return data
@@ -126,3 +140,8 @@ class Data:
 
 json_state = StateMachine()
 data_file = Data()
+
+
+if __name__ == "__main__":  # test json state functionality
+    json_state.set_state("testing...")
+    print(json_state.get_state())
