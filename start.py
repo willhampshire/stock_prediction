@@ -4,11 +4,11 @@ import configparser
 
 from tensorflow.keras.models import load_model
 
-
 from model.stock_data import (
     fetch_stock_data,
     preprocess_data,
 )  # model package contains model training functions
+
 from model.model import build_train_model, analyse_distribute_results
 from json_manage import json_state, data_file  # edit the fastapi state, data file
 

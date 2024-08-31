@@ -3,7 +3,14 @@ import uvicorn
 from typing import Optional, Any
 import configparser
 
-from json_manage import json_state, data_file, StatusJSON, MessageResponse, DataType
+from json_manage import (
+    json_state,
+    data_file,
+    metrics_file,
+    StatusJSON,
+    MessageResponse,
+    DataType,
+)
 from model.model import build_train_model, analyse_distribute_results
 from model.stock_data import fetch_stock_data, preprocess_data
 
@@ -63,6 +70,19 @@ async def get(query: Optional[str] = None):
 @app.get("/data/")
 async def get(query: Optional[str] = None):
     json: DataType = data_file.read()
+    # print(f"get, data {json}")
+    if query:
+        try:
+            result = get_nested_data(json, query)
+            return result
+        except HTTPException as e:
+            return MessageResponse(message=e.detail)
+    return json
+
+
+@app.get("/metrics/")
+async def get(query: Optional[str] = None):
+    json: DataType = metrics_file.read()
     # print(f"get, data {json}")
     if query:
         try:

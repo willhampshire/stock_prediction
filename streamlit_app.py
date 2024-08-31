@@ -23,6 +23,12 @@ def plot_predictions():
     df_1d = pd.DataFrame({"Actual": actual_1d, "Predicted": predicted_1d})
     df_7d = pd.DataFrame({"Actual": actual_7d, "Predicted": predicted_7d})
 
+    df_1d["Predicted"] = df_1d["Predicted"].shift(1)
+    df_7d["Predicted"] = df_7d["Predicted"].shift(7)
+
+    df_1d["Pred. Diff"] = df_1d["Predicted"] - df_1d["Actual"]
+    df_7d["Pred. Diff"] = df_7d["Predicted"] - df_7d["Actual"]
+
     st.subheader("1-Day Ahead Prediction")
     st.line_chart(df_1d)
     st.subheader("7-Day Ahead Prediction")

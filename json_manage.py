@@ -1,3 +1,5 @@
+import pandas as pd
+
 import json
 from typing import List, Tuple
 import numpy as np
@@ -7,6 +9,7 @@ from pathlib import Path
 
 STATE_FILE = "json/state.json"
 DATA_FILE = "json/data.json"
+METRICS_FILE = "json/metrics.json"
 
 
 class StatusJSON(BaseModel):
@@ -41,7 +44,7 @@ class StateMachine:
 
         if self.state_file_path.exists():
             self._load_state()
-            print("state.json already exists")
+            print(f"{STATE_FILE} already exists")
         else:
             self.json = StatusJSON(status="created json")
             self._save_state()
@@ -71,12 +74,55 @@ class StateMachine:
         return True
 
 
+class Metrics:
+    def __init__(self):
+        self.data_file_path = Path(METRICS_FILE)
+
+        if self.data_file_path.exists():
+            print(f"{METRICS_FILE} already exists")
+        else:
+            self.write({"metrics": "no metrics yet"})
+
+        self._cache = self.read()
+
+    def write(self, metrics: dict) -> bool:
+        """
+        Writes metrics to JSON file
+        """
+        blank = {"error": "could not write metrics"}
+        try:
+            with open(self.data_file_path, "w") as file:
+                json.dump(metrics, file)
+                return True
+        except:
+            with open(self.data_file_path, "w") as file:
+                json.dump(blank, file)
+                return False
+
+    def read(self) -> dict | MessageResponse:
+        """
+        Read the metrics from a JSON file.
+
+        Returns:
+            dict
+            or MessageResponse
+        """
+        try:
+            with open(self.data_file_path, "r") as file:
+                data = json.load(file)
+
+                return data
+
+        except (FileNotFoundError, json.JSONDecodeError):
+            return MessageResponse(message="Data not found")
+
+
 class Data:
     def __init__(self):
         self.data_file_path = Path(DATA_FILE)
 
         if self.data_file_path.exists():
-            print("data.json exists already")
+            print(f"{DATA_FILE} already exists")
         else:
             self.write([[]], [[]])
 
@@ -122,7 +168,9 @@ class Data:
         Returns:
             Tuple[List[List[float], List[float]], List[List[float], List[float]]]
             or DataType
-            or MessageResponse:
+            or MessageResponse
+
+            when mode=2:
             Tuple containing the real and prediction arrays.
         """
         try:
@@ -140,6 +188,7 @@ class Data:
 
 json_state = StateMachine()
 data_file = Data()
+metrics_file = Metrics()
 
 
 if __name__ == "__main__":  # test json state functionality

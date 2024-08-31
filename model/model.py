@@ -4,7 +4,7 @@ import numpy as np
 from pandas import DataFrame as DF
 from typing import Tuple, List
 
-from json_manage import data_file  # edit the fastapi state, data file
+from json_manage import data_file, metrics_file  # edit the fastapi state, data file
 
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
@@ -16,7 +16,7 @@ from tensorflow.keras.layers import LSTM, Dense, Input
 
 def create_model(input_shape: Tuple[int, int, int]) -> Model:
     """
-    Create the model.
+    Create the model with separate branches for +1d and +7d predictions.
 
     Parameters:
     - input_shape: tuple of shape Tuple[int, int, int], used to create input and LSTM layer
@@ -26,11 +26,18 @@ def create_model(input_shape: Tuple[int, int, int]) -> Model:
     """
     input_shape = tuple(input_shape[1:])
     inputs = Input(shape=input_shape)
+
+    # Shared LSTM layers
     x = LSTM(50, return_sequences=True)(inputs)
     x = LSTM(50, return_sequences=False)(x)
-    x = Dense(25, activation="relu")(x)
-    output1 = Dense(1, activation="relu", name="output1")(x)  # For '+1d' target
-    output2 = Dense(1, activation="relu", name="output2")(x)  # For '+7d' target
+
+    # Separate branches for +1d and +7d
+    branch_1d = Dense(25, activation="relu")(x)
+    output1 = Dense(1, activation="relu", name="output1")(branch_1d)  # For '+1d' target
+
+    branch_7d = Dense(25, activation="relu")(x)
+    output2 = Dense(1, activation="relu", name="output2")(branch_7d)  # For '+7d' target
+
     model = Model(inputs=inputs, outputs=[output1, output2])
 
     model.compile(
@@ -209,3 +216,14 @@ def analyse_distribute_results(results: Tuple[List[List], List[List]]):
     np.savetxt(
         fpath, [[mse_1d, mae_1d, r2_1d], [mse_7d, mae_7d, r2_7d]], header="mse, mae, r2"
     )
+
+    # save json for access via fastapi. CSV more convenient for testing and debug
+    keys = ["MSE", "MAE", "R^2"]
+    metrics_dict = {
+        period: {metric_name: value for metric_name, value in zip(keys, metric_values)}
+        for period, metric_values in {
+            "1d": [mse_1d, mae_1d, r2_1d],
+            "7d": [mse_7d, mae_7d, r2_7d],
+        }.items()
+    }
+    metrics_file.write(metrics_dict)

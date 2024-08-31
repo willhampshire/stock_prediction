@@ -1,4 +1,14 @@
 # Stock market prediction
+A project to practice making a local machine learning pipeline. Uses LSTM network, FastAPI, and streamlit, to train, manage, predict and display stock market 
+predictions for a single company.
+
+## Summary
+Although not an accurate model, I learned a lot about model selection and where models can break down, and not be useful.
+I also learned how to improve code and file structure to work well with FastAPI and Streamlit.
+For example, it has an extremely poor `R^2` result, mainly due to the poor prediction of random volatility. 
+
+I plan to continue to play with different neural network structures to see if anything interesting happens, 
+and to see if any of the known issues with LSTM stock prediction are reduced.
 
 ## Setup
 * Clone repository
@@ -23,11 +33,18 @@ The model has 2 output nodes - prediction of +1d, and +7d.
 `TIME_PERIOD_LSTM`: window size in days (sample rate of yfinance) to create windows to train the LSTM layer specifically.
 
 ### FastAPI Endpoints
-Accessible on port 8000. Rested behaviour.
+Accessible on port 8000. 
+
+Rested behaviour. For example,
+query with ?query= to index the results json. 
+Can also be sliced, e.g. `/data?query=real[0]`, and nested data returned using `.` to separate keys, e.g. `/metrics?query=1d.MSE`
+
 
 `localhost:8000/` : root shows status. Query with ?query=status to get status as string from json.
 
-`localhost:8000/data` : output data comparing real data vs. predicted data. Split into [1d, 7d] lists. Query with ?query= to index the results json. Can also be sliced, e.g. `/data?query=real[0]`
+`localhost:8000/data` : output data comparing real data vs. predicted data. Split into [1d, 7d] lists, [0, 1] respectively. Not addressable as keys yet.
+
+`localhost:8000/metrics` : model evaluation metrics MSE, MAE, R^2
 
 To retrain model, `POST` to `/retrain` with `{status: "retrain"}` - await response `200`, with json response `{"message": "Model retrained."}`
 Status on root endpoint will reflect.
