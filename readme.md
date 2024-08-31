@@ -42,7 +42,8 @@ Can also be sliced, e.g. `/data?query=real[0]`, and nested data returned using `
 
 `localhost:8000/` : root shows status. Query with ?query=status to get status as string from json.
 
-`localhost:8000/data` : output data comparing real data vs. predicted data. Split into [1d, 7d] lists, [0, 1] respectively. Not addressable as keys yet.
+`localhost:8000/data` : output data comparing real data vs. predicted data. Split into [1d, 7d] lists, [0, 1] respectively. 
+Not addressable as keys as is a list.
 
 `localhost:8000/metrics` : model evaluation metrics MSE, MAE, R^2
 
@@ -74,9 +75,11 @@ To get docker working, I had to open `settings.json` in /Library/Group\ Containe
 - `fastapi`
 - `streamlit`
 
-## Code practices
-Used the following for good code practice and safety:
+## Code formatting
+Used the following for formatting and type safety:
 - `pydantic`
-- `mypy` - used to check code
-- `black` - formats code on save
+- `typing` standard library
+- `mypy` - used to check code for type ambiguity and mismatch
+- `black` - formats Python code to PEP 8 on save
+
 
