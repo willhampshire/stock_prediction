@@ -4,11 +4,13 @@ import pandas as pd
 from json_manage import data_file
 from typing import Tuple
 from pandas import DataFrame as DF
+import time
 
 
 def plot_predictions():
     # Read the data
     data: Tuple = data_file.read(mode=2)
+    time.sleep(0.5)
 
     # Extract real and predicted values
     actual = np.array(data[0])  # Assuming data[0] is an array of real values
@@ -29,14 +31,15 @@ def plot_predictions():
     df_1d["Pred. Diff"] = df_1d["Predicted"] - df_1d["Actual"]
     df_7d["Pred. Diff"] = df_7d["Predicted"] - df_7d["Actual"]
 
+    print(df_1d.head(10))
+    print(df_7d.head(10))
+
     st.subheader("1-Day Ahead Prediction")
     st.line_chart(df_1d)
     st.subheader("7-Day Ahead Prediction")
     st.line_chart(df_7d)
 
 
-# Example Streamlit app
 st.title("Stock Price Prediction")
-
 
 plot_predictions()

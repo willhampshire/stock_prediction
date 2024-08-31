@@ -160,17 +160,17 @@ def build_train_model(data: DF, time_period: int, model_name: str) -> Model:
         [y_test_actual_1d_flat, y_test_actual_7d_flat],
         [y_test_result_1d_flat, y_test_result_7d_flat],
     )
-    print("Written to data.json:")
-    print(
-        DF(
-            [
-                y_test_actual_1d_flat,
-                y_test_actual_7d_flat,
-                y_test_result_1d_flat,
-                y_test_result_7d_flat,
-            ]
-        ).head(10)
+
+    check_data_json_df = DF(
+        [
+            y_test_actual_1d_flat,
+            y_test_actual_7d_flat,
+            y_test_result_1d_flat,
+            y_test_result_7d_flat,
+        ]
     )
+    print(f"Written to data.json with NA: {check_data_json_df.isna().sum()}")
+    print(check_data_json_df.head(10))
     return model
 
 

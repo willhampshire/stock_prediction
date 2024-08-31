@@ -10,7 +10,11 @@ from model.stock_data import (
 )  # model package contains model training functions
 
 from model.model import build_train_model, analyse_distribute_results
-from json_manage import json_state, data_file  # edit the fastapi state, data file
+from json_manage import (
+    json_state,
+    data_file,
+    metrics_file,
+)  # edit the fastapi state, data file
 
 json_state.set_state("init")  # initialise json state machine
 
@@ -35,10 +39,13 @@ stock_data = preprocess_data(stock_data)
 
 
 if os.path.exists(model_save_name):
+    json_state.set_state("loading model")
     model = load_model(model_save_name)
     print("Loaded existing model")
     json_state.set_state("loaded pretrained")
 else:
+    metrics_file.write({"metrics": "waiting"})
+    data_file.write([[], []])
     build_train_model(stock_data, time_period=time_period, model_name=model_save_name)
     json_state.set_state("trained")  # set state to trained
 

@@ -51,7 +51,7 @@ To retrain model, `POST` to `/retrain` with `{status: "retrain"}` - await respon
 Status on root endpoint will reflect.
 
 ### Streamlit
-Accessible on port 8501.
+Accessible on port 8501. Does not render in Safari.
 
 Depicts two line plots, to indicate the real vs. predicted values produced by the model. This is to analyse the accuracy,
 and idendify areas for improvement. For example, the model might be a delayed curve of the real data, and may poorly 

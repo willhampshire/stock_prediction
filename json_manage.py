@@ -40,11 +40,12 @@ class StateMachine:
     def __init__(self):
         self.json: StatusJSON
 
+        global STATE_FILE
         self.state_file_path = Path(STATE_FILE)
 
         if self.state_file_path.exists():
             self._load_state()
-            print(f"{STATE_FILE} already exists")
+            print("State JSON already exists")
         else:
             self.json = StatusJSON(status="created json")
             self._save_state()
@@ -76,10 +77,11 @@ class StateMachine:
 
 class Metrics:
     def __init__(self):
+        global METRICS_FILE
         self.data_file_path = Path(METRICS_FILE)
 
         if self.data_file_path.exists():
-            print(f"{METRICS_FILE} already exists")
+            print(f"Metrics JSON already exists")
         else:
             self.write({"metrics": "no metrics yet"})
 
@@ -119,10 +121,11 @@ class Metrics:
 
 class Data:
     def __init__(self):
+        global DATA_FILE
         self.data_file_path = Path(DATA_FILE)
 
         if self.data_file_path.exists():
-            print(f"{DATA_FILE} already exists")
+            print(f"Data JSON already exists")
         else:
             self.write([[]], [[]])
 
