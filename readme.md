@@ -2,10 +2,15 @@
 A project to practice making a local machine learning pipeline. Uses LSTM network, FastAPI, and streamlit, to train, manage, predict and display stock market 
 predictions for a single company.
 
+## To Do List
+- Predict a moving average instead of daily results, as model does not predict volatility
+
 ## Summary
 Although not an accurate model, I learned a lot about model selection and where models can break down, and not be useful.
 I also learned how to improve code and file structure to work well with FastAPI and Streamlit.
 For example, it has an extremely poor `R^2` result, mainly due to the poor prediction of random volatility. 
+
+It is interesting to observe that the 1d and 7d prediction is very similar in form, which could indicate some viability.
 
 I plan to continue to play with different neural network structures to see if anything interesting happens, 
 and to see if any of the known issues with LSTM stock prediction are reduced.
